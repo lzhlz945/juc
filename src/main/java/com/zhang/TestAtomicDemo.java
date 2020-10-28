@@ -1,5 +1,12 @@
 package com.zhang;
 
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -17,6 +24,16 @@ public class TestAtomicDemo {
         }
     }
 
+    @Test
+    public void test01(){
+        MyRunnable4 runnable4=new MyRunnable4();
+        for (int i = 0; i < 10; i++) {
+            new Thread(runnable4).start();
+
+        }
+
+
+    }
 
 }
 /*
@@ -67,4 +84,31 @@ class MyRunnable3 implements Runnable{
     public int getNumber() {
         return number.getAndIncrement();
     }
+}
+
+/**
+ * concurrentMap:锁分段机制，分为16个段，每个段都有锁，从原来的串行到并行，
+ * jdk1.8也是采用的cas算法，这样可以不阻塞和不上下文切换的解决线程安全问题
+ *
+ * CopyOnWriteArrayList 在遍历时在多线程下可以增加
+ */
+class MyRunnable4 implements Runnable{
+
+//    private static List<String> list= Collections.synchronizedList(new ArrayList<>());
+    private static List<String> list=new CopyOnWriteArrayList<>();
+    static {
+        list.add("aa");
+        list.add("bb");
+        list.add("cc");
+    }
+    @Override
+    public void run() {
+        for (Iterator<String> iterator = list.iterator(); iterator.hasNext(); ) {
+            String next = iterator.next();
+            list.add("gg");
+            System.out.println(next);
+        }
+    }
+
+
 }
